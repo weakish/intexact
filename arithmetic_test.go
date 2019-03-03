@@ -84,7 +84,7 @@ func TestNeg(t *testing.T) {
 			var err error
 			result, err = Neg(test.in)
 			if err == nil {
-				if err == test.integerOverflow {
+				if test.integerOverflow == nil {
 					if result != test.result {
 						t.Errorf("EXPECTED %d\nACTUAL %d\n",
 							test.result, result)
@@ -103,6 +103,85 @@ func TestNeg(t *testing.T) {
 	}
 }
 
+
+var addTests = []struct{
+	x int
+	y int
+	r int
+	e error
+}{
+	{0, 0, 0, nil},
+	{1, 1, 2, nil},
+	{-1, -1, -2, nil},
+	{MinInt, MaxInt, -1, nil},
+	{MaxInt, MaxInt, 0, IntegerOverflow},
+	{MinInt, MinInt, 0, IntegerOverflow},
+}
+
+func TestAdd(t *testing.T) {
+	for i, test := range addTests {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			var result int
+			var err error
+			result, err = Add(test.x, test.y)
+			if err == nil {
+				if test.e == nil {
+					if result != test.r {
+						t.Errorf("EXPECTED %d\nACTUAL %d\n", test.r, result)
+					} else {}
+				} else {
+					t.Errorf("EXPECTED overflow\nACTUAL no overflow (got %d)",
+						result)
+				}
+			} else {
+				if err != test.e {
+					t.Errorf("EXPECTED %d, %s\nACTUAL %d, %s\n",
+						test.r, test.e, result, err)
+				} else {}
+			}
+		})
+	}
+}
+
+var subTests = []struct{
+	x int
+	y int
+	r int
+	e error
+}{
+	{0, 0, 0, nil},
+	{1, 1, 0, nil},
+	{-1, -1, 0, nil},
+	{2, 1, 1, nil},
+	{MinInt, MaxInt, 0, IntegerOverflow},
+	{MaxInt, MaxInt, 0, nil},
+	{MinInt, MinInt, 0, nil},
+}
+
+func TestSub(t *testing.T) {
+	for i, test := range subTests {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			var result int
+			var err error
+			result, err = Sub(test.x, test.y)
+			if err == nil {
+				if test.e == nil {
+					if result != test.r {
+						t.Errorf("EXPECTED %d\nACTUAL %d\n", test.r, result)
+					} else {}
+				} else {
+					t.Errorf("EXPECTED overflow\nACTUAL no overflow (got %d)",
+						result)
+				}
+			} else {
+				if err != test.e {
+					t.Errorf("EXPECTED %d, %s\nACTUAL %d, %s\n",
+						test.r, test.e, result, err)
+				} else {}
+			}
+		})
+	}
+}
 
 type True bool
 
