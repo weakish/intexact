@@ -328,3 +328,10 @@ func TestSubAgainstAlternativeImplementation(t *testing.T) {
 	testAgainstAlternativeImplementation(Sub, alternative, t)
 }
 
+func TestMulAgainstAlternativeImplementation(t *testing.T) {
+	alternative := alternativeBuilder(
+		func (a int, b int) int { return a * b },
+		func (a int64, b int64) int64 { return a * b },
+		big.NewInt(0).Mul)
+	testAgainstAlternativeImplementation(Mul, alternative, t)
+}
