@@ -111,13 +111,25 @@ func checkOverflow(expectedResult int, expectedError  error,
 	}
 }
 
-
-var addTests = []struct{
+type arithmeticTest struct {
 	x int
 	y int
 	r int
 	e error
-}{
+}
+
+func testArithmetic(tests []arithmeticTest, operation func(int, int) (int, error), t *testing.T) {
+	for i, test := range tests {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			var result int
+			var err error
+			result, err = operation(test.x, test.y)
+			checkOverflow(test.r, test.e, result, err, t)
+		})
+	}
+}
+
+var addTests = []arithmeticTest{
 	{0, 0, 0, nil},
 	{1, 1, 2, nil},
 	{-1, -1, -2, nil},
@@ -127,22 +139,10 @@ var addTests = []struct{
 }
 
 func TestAdd(t *testing.T) {
-	for i, test := range addTests {
-		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var result int
-			var err error
-			result, err = Add(test.x, test.y)
-			checkOverflow(test.r, test.e, result, err, t)
-		})
-	}
+	testArithmetic(addTests, Add, t)
 }
 
-var subTests = []struct{
-	x int
-	y int
-	r int
-	e error
-}{
+var subTests = []arithmeticTest{
 	{0, 0, 0, nil},
 	{1, 1, 0, nil},
 	{-1, -1, 0, nil},
@@ -153,14 +153,7 @@ var subTests = []struct{
 }
 
 func TestSub(t *testing.T) {
-	for i, test := range subTests {
-		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var result int
-			var err error
-			result, err = Sub(test.x, test.y)
-			checkOverflow(test.r, test.e, result, err, t)
-		})
-	}
+	testArithmetic(subTests, Sub, t)
 }
 
 type True bool
