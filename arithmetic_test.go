@@ -264,55 +264,54 @@ func TestDecViaSub(t *testing.T) {
 	}
 }
 
-func TestAddAgainstAlternativeImplementation(t *testing.T) {
-	alternativeImplementation := func(x int, y int) (int, error) {
-		var r int = x + y
-		var x64 = int64(x)
-		var y64 = int64(y)
-		if strconv.IntSize == 32 {
-			var r64 int64 = x64 + y64
-			if int(r64) == r {
-				return r, nil
-			} else {
-				return 0, IntegerOverflow
-			}
+func alternativeImplementation(
+		x int, y int,
+		operator func (int, int) int, operator64 func (int64, int64) int64,
+		method func (*big.Int, *big.Int) *big.Int) (int, error) {
+
+	var r int = operator(x, y)
+	var x64 = int64(x)
+	var y64 = int64(y)
+	if strconv.IntSize == 32 {
+		var r64 int64 = operator64(x64, y64)
+		if int(r64) == r {
+			return r, nil
 		} else {
-			var bigInt *big.Int = big.NewInt(0).Add(big.NewInt(x64), big.NewInt(y64))
-			if bigInt.IsInt64() {
-				return r, nil
-			} else {
-				return 0, IntegerOverflow
-			}
+			return 0, IntegerOverflow
+		}
+	} else {
+		var bigInt *big.Int = method(big.NewInt(x64), big.NewInt(y64))
+		if bigInt.IsInt64() {
+			return r, nil
+		} else {
+			return 0, IntegerOverflow
 		}
 	}
-	var err error = quick.CheckEqual(Add, alternativeImplementation, nil)
+}
+
+func TestAddAgainstAlternativeImplementation(t *testing.T) {
+	alternativeAdd := func (x int, y int) (int, error) {
+		return alternativeImplementation(
+			x, y,
+			func (a int, b int) int { return a + b },
+			func (a int64, b int64) int64 { return a + b },
+			big.NewInt(0).Add)
+	}
+	var err error = quick.CheckEqual(Add, alternativeAdd, nil)
 	if err != nil {
 		t.Error(err)
 	}
 }
 
 func TestSubAgainstAlternativeImplementation(t *testing.T) {
-	alternativeImplementation := func(x int, y int) (int, error) {
-		var r int = x - y
-		var x64 = int64(x)
-		var y64 = int64(y)
-		if strconv.IntSize == 32 {
-			var r64 int64 = x64 - y64
-			if int(r64) == r {
-				return r, nil
-			} else {
-				return 0, IntegerOverflow
-			}
-		} else {
-			var bigInt *big.Int = big.NewInt(0).Sub(big.NewInt(x64), big.NewInt(y64))
-			if bigInt.IsInt64() {
-				return r, nil
-			} else {
-				return 0, IntegerOverflow
-			}
-		}
+	alternativeSub := func (x int, y int) (int, error) {
+		return alternativeImplementation(
+			x, y,
+			func (a int, b int) int { return a - b},
+			func (a int64, b int64) int64 { return a - b},
+			big.NewInt(0).Sub)
 	}
-	var err error = quick.CheckEqual(Sub, alternativeImplementation, nil)
+	var err error = quick.CheckEqual(Sub, alternativeSub, nil)
 	if err != nil {
 		t.Error(err)
 	}
