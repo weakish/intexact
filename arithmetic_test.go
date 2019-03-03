@@ -289,30 +289,35 @@ func alternativeImplementation(
 	}
 }
 
+func testAgainstAlternativeImplementation(
+		impl, alternative func (int, int) (int, error),
+		t *testing.T) {
+
+	var err error = quick.CheckEqual(impl, alternative, nil)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
 func TestAddAgainstAlternativeImplementation(t *testing.T) {
-	alternativeAdd := func (x int, y int) (int, error) {
+	alternative := func (x int, y int) (int, error) {
 		return alternativeImplementation(
 			x, y,
 			func (a int, b int) int { return a + b },
 			func (a int64, b int64) int64 { return a + b },
 			big.NewInt(0).Add)
 	}
-	var err error = quick.CheckEqual(Add, alternativeAdd, nil)
-	if err != nil {
-		t.Error(err)
-	}
+	testAgainstAlternativeImplementation(Add, alternative, t)
 }
 
 func TestSubAgainstAlternativeImplementation(t *testing.T) {
-	alternativeSub := func (x int, y int) (int, error) {
+	alternative := func (x int, y int) (int, error) {
 		return alternativeImplementation(
 			x, y,
-			func (a int, b int) int { return a - b},
-			func (a int64, b int64) int64 { return a - b},
+			func (a int, b int) int { return a - b },
+			func (a int64, b int64) int64 { return a - b },
 			big.NewInt(0).Sub)
 	}
-	var err error = quick.CheckEqual(Sub, alternativeSub, nil)
-	if err != nil {
-		t.Error(err)
-	}
+	testAgainstAlternativeImplementation(Sub, alternative, t)
 }
+
