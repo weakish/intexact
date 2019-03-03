@@ -171,3 +171,23 @@ func TestNegNeg(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestIncViaAdd(t *testing.T) {
+	incViaAdd := func(n int) (int, error) {
+		return Add(n, 1)
+	}
+	var err error = quick.CheckEqual(Inc, incViaAdd, nil)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestDecViaSub(t *testing.T) {
+	decViaSub := func(n int) (int, error) {
+		return Sub(n, 1)
+	}
+	var err error = quick.CheckEqual(Dec, decViaSub, nil)
+	if err != nil {
+		t.Error(err)
+	}
+}
