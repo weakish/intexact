@@ -49,7 +49,7 @@ func SaturatedDec(n int) (int, Saturated) {
 
 func Neg(n int) (int, error) {
 	if n == MinInt {
-		return MaxInt, IntegerOverflow
+		return 0, IntegerOverflow
 	} else {
 		return -n, nil
 	}
