@@ -149,3 +149,25 @@ func TestSaturatedIncInversesSaturatedDec(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestNegNeg(t *testing.T) {
+	negNeg := func(n int) True {
+		var result int
+		var integerOverflow error
+		result, integerOverflow = Neg(n)
+
+		if integerOverflow == IntegerOverflow {
+			return true
+		} else {
+			var ret int
+			var err error
+			ret, err = Neg(result)
+			return err == nil && ret == n
+		}
+
+	}
+	var err error = quick.Check(negNeg, nil)
+	if err != nil {
+		t.Error(err)
+	}
+}
