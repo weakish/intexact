@@ -293,6 +293,15 @@ func alternativeImplementation(
 	}
 }
 
+func alternativeBuilder(
+		operator Operator, operator64 Operator64,
+		method OperatorBig) func(int, int) (int, error) {
+
+	return func (x int, y int) (int, error) {
+		return alternativeImplementation(x, y, operator, operator64, method)
+	}
+}
+
 func testAgainstAlternativeImplementation(
 		impl, alternative func (int, int) (int, error),
 		t *testing.T) {
@@ -304,24 +313,18 @@ func testAgainstAlternativeImplementation(
 }
 
 func TestAddAgainstAlternativeImplementation(t *testing.T) {
-	alternative := func (x int, y int) (int, error) {
-		return alternativeImplementation(
-			x, y,
-			func (a int, b int) int { return a + b },
-			func (a int64, b int64) int64 { return a + b },
-			big.NewInt(0).Add)
-	}
+	alternative := alternativeBuilder(
+		func (a int, b int) int { return a + b },
+		func (a int64, b int64) int64 { return a + b },
+		big.NewInt(0).Add)
 	testAgainstAlternativeImplementation(Add, alternative, t)
 }
 
 func TestSubAgainstAlternativeImplementation(t *testing.T) {
-	alternative := func (x int, y int) (int, error) {
-		return alternativeImplementation(
-			x, y,
-			func (a int, b int) int { return a - b },
-			func (a int64, b int64) int64 { return a - b },
-			big.NewInt(0).Sub)
-	}
+	alternative := alternativeBuilder(
+		func (a int, b int) int { return a - b },
+		func (a int64, b int64) int64 { return a - b },
+		big.NewInt(0).Sub)
 	testAgainstAlternativeImplementation(Sub, alternative, t)
 }
 
