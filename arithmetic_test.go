@@ -83,23 +83,31 @@ func TestNeg(t *testing.T) {
 			var result int
 			var err error
 			result, err = Neg(test.in)
-			if err == nil {
-				if test.integerOverflow == nil {
-					if result != test.result {
-						t.Errorf("EXPECTED %d\nACTUAL %d\n",
-							test.result, result)
-					} else {}
-				} else {
-					t.Errorf("EXPECTED overflow\nACTUAL no overflow (got %d)",
-						result)
-				}
-			} else {
-				if err != test.integerOverflow {
-					t.Errorf("EXPECTED %d, %s\nACTUAL %d, %s\n",
-						test.result, test.integerOverflow, result, err)
-				} else {}
-			}
+			checkOverflow(test.result, test.integerOverflow, result, err, t)
 		})
+	}
+}
+
+func checkOverflow(expectedResult int, expectedError  error,
+			  actualResult int, actualError error,
+			  t *testing.T) {
+	if actualError == nil {
+		if expectedError == nil {
+			if actualResult != expectedResult {
+				t.Errorf("EXPECTED %d\nACTUAL %d\n",
+					expectedResult, actualResult)
+			} else {
+			}
+		} else {
+			t.Errorf("EXPECTED overflow\nACTUAL no overflow (got %d)",
+				actualResult)
+		}
+	} else {
+		if actualError != expectedError {
+			t.Errorf("EXPECTED %d, %s\nACTUAL %d, %s\n",
+				expectedResult, expectedError, actualResult, actualError)
+		} else {
+		}
 	}
 }
 
@@ -124,21 +132,7 @@ func TestAdd(t *testing.T) {
 			var result int
 			var err error
 			result, err = Add(test.x, test.y)
-			if err == nil {
-				if test.e == nil {
-					if result != test.r {
-						t.Errorf("EXPECTED %d\nACTUAL %d\n", test.r, result)
-					} else {}
-				} else {
-					t.Errorf("EXPECTED overflow\nACTUAL no overflow (got %d)",
-						result)
-				}
-			} else {
-				if err != test.e {
-					t.Errorf("EXPECTED %d, %s\nACTUAL %d, %s\n",
-						test.r, test.e, result, err)
-				} else {}
-			}
+			checkOverflow(test.r, test.e, result, err, t)
 		})
 	}
 }
@@ -164,21 +158,7 @@ func TestSub(t *testing.T) {
 			var result int
 			var err error
 			result, err = Sub(test.x, test.y)
-			if err == nil {
-				if test.e == nil {
-					if result != test.r {
-						t.Errorf("EXPECTED %d\nACTUAL %d\n", test.r, result)
-					} else {}
-				} else {
-					t.Errorf("EXPECTED overflow\nACTUAL no overflow (got %d)",
-						result)
-				}
-			} else {
-				if err != test.e {
-					t.Errorf("EXPECTED %d, %s\nACTUAL %d, %s\n",
-						test.r, test.e, result, err)
-				} else {}
-			}
+			checkOverflow(test.r, test.e, result, err, t)
 		})
 	}
 }
