@@ -9,6 +9,7 @@ const MaxInt = int(maxUint >> 1)
 const MinInt = -MaxInt - 1
 
 var IntegerOverflow error = errors.New("message")
+type Saturated bool
 
 func Inc(n int) (int, error) {
 	if n == MaxInt {
@@ -18,10 +19,14 @@ func Inc(n int) (int, error) {
 	}
 }
 
-func SaturatedInc(n int) int {
+func SaturatedInc(n int) (int, Saturated) {
 	var result int
-	result, _ = Inc(n)
-	return result
+	result, err := Inc(n)
+	if err == IntegerOverflow {
+		return result, true
+	} else {
+		return result, false
+	}
 }
 
 func Dec(n int) (int, error) {
@@ -32,10 +37,14 @@ func Dec(n int) (int, error) {
 	}
 }
 
-func SaturatedDec(n int) int {
+func SaturatedDec(n int) (int, Saturated) {
 	var result int
-	result, _ = Dec(n)
-	return result
+	result, err := Dec(n)
+	if err == IntegerOverflow {
+		return result, true
+	} else {
+		return result, false
+	}
 }
 
 func Neg(n int) (int, error) {
