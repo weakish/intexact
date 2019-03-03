@@ -264,10 +264,14 @@ func TestDecViaSub(t *testing.T) {
 	}
 }
 
+type Operator func (int, int) int
+type Operator64 func (int64, int64) int64
+type OperatorBig func (*big.Int, *big.Int) *big.Int
+
 func alternativeImplementation(
 		x int, y int,
-		operator func (int, int) int, operator64 func (int64, int64) int64,
-		method func (*big.Int, *big.Int) *big.Int) (int, error) {
+		operator Operator, operator64 Operator64,
+		method OperatorBig) (int, error) {
 
 	var r int = operator(x, y)
 	var x64 = int64(x)
