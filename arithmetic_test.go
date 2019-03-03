@@ -1,6 +1,7 @@
 package intexact
 
 import (
+	"math/big"
 	"strconv"
 	"testing"
 	"testing/quick"
@@ -258,6 +259,60 @@ func TestDecViaSub(t *testing.T) {
 		return Sub(n, 1)
 	}
 	var err error = quick.CheckEqual(Dec, decViaSub, nil)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestAddAgainstAlternativeImplementation(t *testing.T) {
+	alternativeImplementation := func(x int, y int) (int, error) {
+		var r int = x + y
+		var x64 = int64(x)
+		var y64 = int64(y)
+		if strconv.IntSize == 32 {
+			var r64 int64 = x64 + y64
+			if int(r64) == r {
+				return r, nil
+			} else {
+				return 0, IntegerOverflow
+			}
+		} else {
+			var bigInt *big.Int = big.NewInt(0).Add(big.NewInt(x64), big.NewInt(y64))
+			if bigInt.IsInt64() {
+				return r, nil
+			} else {
+				return 0, IntegerOverflow
+			}
+		}
+	}
+	var err error = quick.CheckEqual(Add, alternativeImplementation, nil)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestSubAgainstAlternativeImplementation(t *testing.T) {
+	alternativeImplementation := func(x int, y int) (int, error) {
+		var r int = x - y
+		var x64 = int64(x)
+		var y64 = int64(y)
+		if strconv.IntSize == 32 {
+			var r64 int64 = x64 - y64
+			if int(r64) == r {
+				return r, nil
+			} else {
+				return 0, IntegerOverflow
+			}
+		} else {
+			var bigInt *big.Int = big.NewInt(0).Sub(big.NewInt(x64), big.NewInt(y64))
+			if bigInt.IsInt64() {
+				return r, nil
+			} else {
+				return 0, IntegerOverflow
+			}
+		}
+	}
+	var err error = quick.CheckEqual(Sub, alternativeImplementation, nil)
 	if err != nil {
 		t.Error(err)
 	}
