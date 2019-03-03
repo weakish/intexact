@@ -156,6 +156,25 @@ func TestSub(t *testing.T) {
 	testArithmetic(subTests, Sub, t)
 }
 
+var mulTests = []arithmeticTest{
+	{0, 0, 0, nil},
+	{1, 1, 1, nil},
+	{2, 3, 6, nil},
+	{-4, -5, 20, nil},
+	{6, -7, -42, nil},
+	{MinInt, MaxInt, 0, IntegerOverflow},
+	{MaxInt, MaxInt, 0, IntegerOverflow},
+	{MinInt, MinInt, 0, IntegerOverflow},
+	{MinInt, -1, 0, IntegerOverflow},
+	{MinInt, 1, MinInt, nil},
+	{MaxInt, -1, -MaxInt, nil},
+	{MaxInt, 1, MaxInt, nil},
+}
+
+func TestMul(t *testing.T) {
+	testArithmetic(mulTests, Mul, t)
+}
+
 type True bool
 
 func TestSaturatedDecInversesSaturatedInc(t *testing.T) {
