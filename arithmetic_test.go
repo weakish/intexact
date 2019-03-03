@@ -3,6 +3,7 @@ package intexact
 import (
 	"strconv"
 	"testing"
+	"testing/quick"
 )
 
 var incTests = []struct {
@@ -99,5 +100,52 @@ func TestNeg(t *testing.T) {
 				} else {}
 			}
 		})
+	}
+}
+
+
+type True bool
+
+func TestSaturatedDecInversesSaturatedInc(t *testing.T) {
+	saturatedDecInversesSaturatedInc := func(n int) True {
+		var result int
+		var saturated Saturated
+		result, saturated = SaturatedInc(n)
+
+		var r int
+		var s Saturated
+		r, s = SaturatedDec(result)
+
+		if saturated {
+			return s == false && r == MaxInt - 1
+		} else {
+			return r == n
+		}
+	}
+	var err error = quick.Check(saturatedDecInversesSaturatedInc, nil)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestSaturatedIncInversesSaturatedDec(t *testing.T) {
+	saturatedIncInversesSaturatedDec := func(n int) True {
+		var result int
+		var saturated Saturated
+		result, saturated = SaturatedDec(n)
+
+		var r int
+		var s Saturated
+		r, s = SaturatedInc(result)
+
+		if saturated {
+			return s == false && r == MinInt + 1
+		} else {
+			return r == n
+		}
+	}
+	var err error = quick.Check(saturatedIncInversesSaturatedDec, nil)
+	if err != nil {
+		t.Error(err)
 	}
 }
